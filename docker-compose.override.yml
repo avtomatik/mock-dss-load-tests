@@ -1,0 +1,24 @@
+# WARNING: Work in Progress. Not Working
+services:
+  locust:
+    build:
+      context: ../digital-signature-service-locust-tests
+    container_name: locust
+    environment:
+      - TARGET_HOST=http://backend:8000
+    ports:
+      - "8089:8089"
+    volumes:
+      # - ../digital-signature-service-locust-tests:/locust
+      - ../digital-signature-service/.env:/locust/.env
+    networks:
+      - backend_network
+    depends_on:
+      - backend
+      - db
+      - rabbitmq
+      - redis
+
+networks:
+  backend_network:
+    driver: bridge
