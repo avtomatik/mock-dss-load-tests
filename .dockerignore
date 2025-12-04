@@ -1,0 +1,33 @@
+ # Python bytecode files
+__pycache__
+*.pyc
+*.pyo
+
+# Virtual environment folders
+venv/
+.env/
+
+# Docker files and temp files
+docker-compose.override.yml
+Dockerfile
+*.lock
+
+# Logs and other runtime files
+*.log
+*.pid
+*.swp
+
+# Locust temporary files
+.locustfile.py*
+
+# README and License files
+README.md
+LICENSE.md
+
+# Any other IDE-specific files
+.idea/
+.vscode/
+
+# Any other system files that are not necessary in the container image
+.DS_Store
+Thumbs.db
