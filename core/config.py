@@ -7,11 +7,11 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = "default_pass"
     DB_HOST: str = "db"
     DB_PORT: str = "5432"
-    DB_NAME: str = "digital_signature_service"
+    DB_NAME: str = "mock_dss_db"
 
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "default_pass"
-    POSTGRES_DB: str = "digital_signature_service"
+    POSTGRES_DB: str = "mock_dss_db"
 
     MQ_USER: str = "guest"
     MQ_PASSWORD: str = "guest"
@@ -41,7 +41,7 @@ class Settings(BaseSettings):
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     class Config(ConfigDict):
-        env_file = "../digital-signature-service/backend/.env"
+        env_file = "../mock-dss/backend/.env"
 
 
 settings = Settings()

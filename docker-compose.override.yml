@@ -1,7 +1,7 @@
 services:
   locust:
     build:
-      context: ../digital-signature-service-locust-tests
+      context: ../mock-dss-load-tests
     container_name: locust
     environment:
       - TARGET_HOST=http://localhost:8000

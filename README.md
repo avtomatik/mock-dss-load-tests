@@ -6,7 +6,7 @@ This project contains **Locust** load tests for the **Digital Signature Service*
 
 * Docker
 * Docker Compose
-* Access to the **digital-signature-service** repository
+* Access to the **mock-dss** repository
 
 ## Project Structure
 
@@ -33,21 +33,21 @@ This project contains **Locust** load tests for the **Digital Signature Service*
 
 ### Clone the Repositories
 
-Ensure you have both the `digital-signature-service` and `digital-signature-service-locust-tests` repositories.
+Ensure you have both the `mock-dss` and `mock-dss-load-tests` repositories.
 
 ```bash
-git clone <digital-signature-service-repository-url>
-git clone <digital-signature-service-locust-tests-repository-url>
+git clone <mock-dss-repository-url>
+git clone <mock-dss-load-tests-repository-url>
 ```
 
 ### Build and Run Docker Containers
 
-Make sure you have Docker and Docker Compose installed. To run the tests, use the `docker-compose.override.yml` file from this repository in conjunction with the main `docker-compose.yml` file from the sibling `digital-signature-service` repository.
+Make sure you have Docker and Docker Compose installed. To run the tests, use the `docker-compose.override.yml` file from this repository in conjunction with the main `docker-compose.yml` file from the sibling `mock-dss` repository.
 
-From the **`digital-signature-service`** repository, run the following command:
+From the **`mock-dss`** repository, run the following command:
 
 ```bash
-sudo docker-compose -f docker-compose.yml -f ../digital-signature-service-locust-tests/docker-compose.override.yml up --build
+sudo docker-compose -f docker-compose.yml -f ../mock-dss-load-tests/docker-compose.override.yml up --build
 ```
 
 This command will:

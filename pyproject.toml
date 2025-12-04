@@ -1,5 +1,5 @@
 [project]
-name = "digital-signature-service-locust-tests"
+name = "mock-dss-load-tests"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
