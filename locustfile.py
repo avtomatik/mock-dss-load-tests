@@ -2,7 +2,8 @@ import time
 
 from locust import task
 
-from core.constants import QUERY_DATE, SECONDS_TO_MILLISECONDS
+from core.constants import SECONDS_TO_MILLISECONDS
+from core.helpers import generate_current_date_str
 from core.users import AsyncBackendUser
 
 
@@ -12,7 +13,9 @@ class DSSLoadUser(AsyncBackendUser):
         async with self.environment.events.request.request(
             request_type="postgres", name="select_count"
         ) as req:
-            val = await self.db.get_signature_count_for_day(QUERY_DATE)
+            val = await self.db.get_signature_count_for_day(
+                generate_current_date_str()
+            )
             req.response_length = len(str(val))
 
     @task(2)

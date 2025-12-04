@@ -1,6 +1,11 @@
 import hashlib
 import random
 import string
+from datetime import datetime
+
+
+def generate_current_date_str() -> str:
+    return datetime.now().strftime("%Y-%m-%d")
 
 
 def generate_random_content() -> str:

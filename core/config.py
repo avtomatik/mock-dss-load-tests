@@ -41,7 +41,7 @@ class Settings(BaseSettings):
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     class Config(ConfigDict):
-        env_file = "../digital-signature-service/.env"
+        env_file = "../digital-signature-service/backend/.env"
 
 
 settings = Settings()
