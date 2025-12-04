@@ -1,5 +1,6 @@
 from psycopg_pool import ConnectionPool
 
+from core.constants import SQL_INSERT_DOCUMENT, SQL_SELECT_COUNT
 from core.helpers import generate_random_content, generate_random_id
 
 
@@ -26,18 +27,11 @@ class AsyncPostgresClient:
 
     async def get_signature_count_for_day(self, day: str) -> int:
         async with self.pool.connection() as conn:
-            query = (
-                "SELECT count(*) FROM signatures WHERE DATE(signed_at) = %s"
-            )
-            result = await conn.fetchval(query, (day,))
+            result = await conn.fetchval(SQL_SELECT_COUNT, (day,))
             return result or 0
 
     async def insert_document(self) -> None:
         async with self.pool.connection() as conn:
             document_id = generate_random_id()
             content = generate_random_content()
-            query = """
-                INSERT INTO documents (document_id, content, created_at)
-                VALUES (%s, %s, NOW())
-            """
-            await conn.execute(query, (document_id, content))
+            await conn.execute(SQL_INSERT_DOCUMENT, (document_id, content))
