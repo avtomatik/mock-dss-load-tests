@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [tool.locust]
-headless = false
+headless = true
 # master = true
 # expect-workers = 5
 host = "http://backend:8000"
