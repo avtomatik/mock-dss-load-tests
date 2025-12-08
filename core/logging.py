@@ -7,7 +7,7 @@ from core.constants import (LOG_BACKUP_COUNT, LOG_FILENAME,
                             LOG_FORMAT_DETAILED, LOG_MAX_SIZE)
 
 
-def get_current_method():
+def get_current_method() -> str:
     return inspect.currentframe().f_code.co_name
 
 
