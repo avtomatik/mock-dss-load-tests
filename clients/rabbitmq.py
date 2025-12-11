@@ -15,7 +15,7 @@ class AsyncRabbitMQClient:
         if self.connection is None:
             self.connection = await connect_robust(self.url)
             self.channel = await self.connection.channel()
-            await self.channel.queue_declare(
+            await self.channel.declare_queue(
                 queue=self.queue_name, durable=True
             )
 
