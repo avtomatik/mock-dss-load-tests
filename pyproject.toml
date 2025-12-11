@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "aio-pika",
     "configargparse",
+    "debugpy",
     "flask",
     "flask-cors",
     "flask-login",
@@ -20,10 +21,10 @@ dependencies = [
 ]
 
 [tool.locust]
-headless = false
+headless = true
 # master = true
 # expect-workers = 5
-host = "http://backend:8000"
+host = "http://localhost:8000"
 users = 100
 spawn-rate = 10
 run-time = "10m"

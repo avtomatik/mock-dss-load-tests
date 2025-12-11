@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Locust with UV",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/.venv/bin/debugpy",
+      "args": [
+        "--wait-for-client",
+        "-m", "locust",
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/.venv/lib/python3.12/site-packages",
+        "GEVENT_SUPPORT": "True"
+      },
+      "justMyCode": false
+    }
+  ]
+}
