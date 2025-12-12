@@ -5,19 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "aio-pika",
-    "configargparse",
     "debugpy",
-    "flask",
-    "flask-cors",
-    "flask-login",
     "locust",
-    "locust-cloud",
+    "pika",
     "psycopg[binary,pool]",
     "pydantic-settings",
-    "python-socketio",
     "redis",
-    "requests",
 ]
 
 [tool.locust]
@@ -25,7 +18,7 @@ headless = true
 # master = true
 # expect-workers = 5
 host = "http://localhost:8000"
-users = 100
+users = 90
 spawn-rate = 10
 run-time = "10m"
 csv = "results"
