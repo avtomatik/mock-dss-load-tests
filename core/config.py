@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     REDIS_DB: int = 0
 
     @property
-    def db_dsn(self) -> str:
+    def db_url(self) -> str:
         return (
             f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@"
             f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
         )
 
     @property
-    def redis_url(self) -> str:
+    def cache_url(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     class Config(ConfigDict):

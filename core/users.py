@@ -13,9 +13,9 @@ class BackendUser(User):
     wait_time = constant(1)
 
     def _connect_clients(self):
-        self.db = PostgresClient(settings.db_dsn)
+        self.db = PostgresClient(settings.db_url)
         self.mq = RabbitMQClient(settings.mq_url)
-        self.cache = RedisClient(settings.redis_url)
+        self.cache = RedisClient(settings.cache_url)
 
         gevent.spawn(self.db.connect)
         gevent.spawn(self.mq.connect)
