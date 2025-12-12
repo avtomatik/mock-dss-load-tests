@@ -4,45 +4,115 @@ from locust import task
 
 from core.constants import SECONDS_TO_MILLISECONDS
 from core.helpers import generate_current_date_str
-from core.users import AsyncBackendUser
+from core.users import BackendUser
 
 
-class DSSLoadUser(AsyncBackendUser):
+class DSSLoadUser(BackendUser):
     @task(3)
-    async def query_db(self):
-        async with self.environment.events.request.request(
-            request_type="postgres", name="select_count"
-        ) as req:
-            val = await self.db.get_signature_count_for_day(
+    def query_db(self):
+        start_time = time.time()
+        try:
+            val = self.db.get_signature_count_for_day(
                 generate_current_date_str()
             )
-            req.response_length = len(str(val))
+
+            response_length = len(str(val))
+
+            self.environment.events.request.fire(
+                request_type="postgres",
+                name="select_count",
+                response_time=(time.time() - start_time)
+                * SECONDS_TO_MILLISECONDS,
+                response_length=response_length,
+                exception=None,
+            )
+        except Exception as e:
+            self.environment.events.request.fire(
+                request_type="postgres",
+                name="select_count",
+                response_time=(time.time() - start_time)
+                * SECONDS_TO_MILLISECONDS,
+                response_length=0,
+                exception=e,
+            )
+            raise
 
     @task(2)
-    async def insert_db(self):
-        async with self.environment.events.request.request(
-            request_type="postgres", name="insert_document"
-        ) as req:
-            await self.db.insert_document()
-            req.response_length = 0
+    def insert_db(self):
+        start_time = time.time()
+        try:
+            self.db.insert_document()
+
+            self.environment.events.request.fire(
+                request_type="postgres",
+                name="insert_document",
+                response_time=(time.time() - start_time)
+                * SECONDS_TO_MILLISECONDS,
+                response_length=0,
+                exception=None,
+            )
+        except Exception as e:
+            self.environment.events.request.fire(
+                request_type="postgres",
+                name="insert_document",
+                response_time=(time.time() - start_time)
+                * SECONDS_TO_MILLISECONDS,
+                response_length=0,
+                exception=e,
+            )
+            raise
 
     @task(4)
-    async def publish_message(self):
+    def publish_message(self):
         payload = {"ts": time.time(), "payload": "sync_test"}
+        start_time = time.time()
 
-        async with self.environment.events.request.request(
-            request_type="rabbitmq", name="publish"
-        ) as req:
-            await self.mq.publish(payload)
-            req.response_length = len(str(payload))
+        try:
+            self.mq.publish(payload)
+
+            self.environment.events.request.fire(
+                request_type="rabbitmq",
+                name="publish",
+                response_time=(time.time() - start_time)
+                * SECONDS_TO_MILLISECONDS,
+                response_length=len(str(payload)),
+                exception=None,
+            )
+        except Exception as e:
+            self.environment.events.request.fire(
+                request_type="rabbitmq",
+                name="publish",
+                response_time=(time.time() - start_time)
+                * SECONDS_TO_MILLISECONDS,
+                response_length=0,
+                exception=e,
+            )
+            raise
 
     @task(3)
-    async def redis_ops(self):
+    def redis_ops(self):
         key = f"test:{int(time.time() * SECONDS_TO_MILLISECONDS)}"
+        start_time = time.time()
 
-        async with self.environment.events.request.request(
-            request_type="cache", name="set_get"
-        ) as req:
-            await self.cache.set_key(key, "value", expire=120)
-            val = await self.cache.get_key(key)
-            req.response_length = len(val or "")
+        try:
+            self.cache.set_key(key, "value", expire=120)
+            val = self.cache.get_key(key)
+
+            self.environment.events.request.fire(
+                request_type="cache",
+                name="set_get",
+                response_time=(time.time() - start_time)
+                * SECONDS_TO_MILLISECONDS,
+                response_length=len(val or ""),
+                exception=None,
+            )
+        except Exception as e:
+            self.environment.events.request.fire(
+                request_type="cache",
+                name="set_get",
+                response_time=(time.time() - start_time)
+                * SECONDS_TO_MILLISECONDS,
+                response_length=0,
+                exception=e,
+            )
+            raise
