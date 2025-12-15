@@ -2,8 +2,13 @@ import json
 from urllib.parse import urlparse
 
 from gevent import monkey
-from pika import (BasicProperties, BlockingConnection, ConnectionParameters,
-                  DeliveryMode, PlainCredentials)
+from pika import (
+    BasicProperties,
+    BlockingConnection,
+    ConnectionParameters,
+    DeliveryMode,
+    PlainCredentials,
+)
 from pika.channel import Channel
 
 monkey.patch_all()

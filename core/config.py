@@ -40,8 +40,7 @@ class Settings(BaseSettings):
     def cache_url(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
-    class Config(ConfigDict):
-        env_file = ".env.local"
+    model_config = ConfigDict(env_file=".env.local")
 
 
 settings = Settings()
