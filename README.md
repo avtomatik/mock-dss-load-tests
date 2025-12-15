@@ -40,34 +40,69 @@ git clone <mock-dss-repository-url>
 git clone <mock-dss-load-tests-repository-url>
 ```
 
-### Build and Run Docker Containers
+### Build and Run Docker Containers Locally
 
-Make sure you have Docker and Docker Compose installed. To run the tests, use the `docker-compose.override.yml` file from this repository in conjunction with the main `docker-compose.yml` file from the sibling `mock-dss` repository.
+Make sure you have Docker and Docker Compose installed. To run the tests locally, follow these steps:
 
-From the **`mock-dss`** repository, run the following command:
+1. From the **`mock-dss`** repository, run the following command:
 
 ```bash
-sudo docker-compose -f docker-compose.yml -f ../mock-dss-load-tests/docker-compose.override.yml up --build
+sudo docker-compose up --build
 ```
 
-This command will:
+This will:
 
 1. Build the Docker images.
-2. Set up the required services (e.g., Locust, PostgreSQL, RabbitMQ).
-3. Start running the Locust load tests.
+2. Set up the required services (e.g., Backend, PostgreSQL, RabbitMQ).
 
 ### Configuration
 
-The configuration of the tests can be adjusted in the `core/config.py` file. You can modify parameters such as the number of users, spawn rate, and test duration to suit your needs.
+Before running the tests, you need to configure your local environment:
+
+1. Copy the example environment file to `.env.local`:
+
+```bash
+cp .env.local.example .env.local
+```
+
+2. Open `.env.local` and update the following configurations:
+
+   * Set the `default_pass` to the required password.
+   * Ensure the service names are updated to use `localhost` instead of other hostnames.
+
+Test configurations such as the number of users, spawn rate, and test duration can be modified in the `pyproject.toml` file, under the `[tool.locust]` section.
+
+### Setting Up the Virtual Environment
+
+After configuring your environment, you can set up the virtual environment and sync the dependencies:
+
+```bash
+# Create and activate a virtual environment
+uv venv
+source .venv/bin/activate
+
+# Sync dependencies
+uv sync
+```
+
+### Running Locust
+
+Once your environment is set up and dependencies are synced, you can start the Locust load tests by running:
+
+```bash
+uv run locust
+```
+
+This will start the Locust service, and you’ll be able to access the web interface.
 
 ## Running the Tests
 
-Once the Docker containers are up, you can access the Locust web interface at `http://localhost:8089` to configure and start the load tests.
+Once the Docker containers are up and Locust is running, you can access the Locust web interface at `http://localhost:8089` to configure and start the load tests.
 
-* Specify the number of virtual users (clients), spawn rate, and target endpoints.
-* Click **Start swarming** to begin the load test.
+1. Specify the number of virtual users (clients), spawn rate, and target endpoints.
+2. Click **Start swarming** to begin the load test.
 
-Locust will then simulate traffic on your **Digital Signature Service** and provide real-time results.
+Locust will simulate traffic on your **Digital Signature Service** and provide real-time results.
 
 ## Results
 
@@ -83,3 +118,5 @@ These metrics will help you assess the performance of the system under load.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+---

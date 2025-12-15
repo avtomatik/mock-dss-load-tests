@@ -1,37 +1,33 @@
-from psycopg_pool import AsyncConnectionPool
+import psycopg
 
 from core.constants import SQL_INSERT_DOCUMENT, SQL_SELECT_COUNT
 from core.helpers import generate_random_content, generate_random_id
 
 
-class AsyncPostgresClient:
-    def __init__(self, dsn: str, min_size: int = 1, max_size: int = 10):
-        self.dsn: str = dsn
-        self.pool: AsyncConnectionPool | None = None
-        self.min_size: int = min_size
-        self.max_size: int = max_size
+class PostgresClient:
+    def __init__(self, url: str):
+        self.url: str = url
+        self.connection: psycopg.Connection | None = None
 
-    async def connect(self):
-        if self.pool is None:
-            self.pool = AsyncConnectionPool(
-                self.dsn,
-                min_size=self.min_size,
-                max_size=self.max_size,
-                timeout=30,
-            )
+    def connect(self):
+        if self.connection is None:
+            self.connection = psycopg.connect(self.url)
 
-    async def close(self):
-        if self.pool:
-            await self.pool.close()
-            self.pool = None
+    def close(self):
+        if self.connection:
+            self.connection.close()
+            self.connection = None
 
-    async def get_signature_count_for_day(self, day: str) -> int:
-        async with self.pool.connection() as conn:
-            result = await conn.fetchval(SQL_SELECT_COUNT, (day,))
-            return result or 0
+    def get_signature_count_for_day(self, day: str) -> int:
+        self.connect()
+        with self.connection.cursor() as cursor:
+            cursor.execute(SQL_SELECT_COUNT, (day,))
+            result = cursor.fetchone()
+            return result[0] or 0
 
-    async def insert_document(self) -> None:
-        async with self.pool.connection() as conn:
-            document_id = generate_random_id()
-            content = generate_random_content()
-            await conn.execute(SQL_INSERT_DOCUMENT, (document_id, content))
+    def insert_document(self) -> None:
+        self.connect()
+        document_id = generate_random_id()
+        content = generate_random_content()
+        with self.connection.cursor() as cursor:
+            cursor.execute(SQL_INSERT_DOCUMENT, (document_id, content))

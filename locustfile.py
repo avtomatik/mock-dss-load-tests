@@ -4,51 +4,93 @@ from locust import task
 
 from core.constants import SECONDS_TO_MILLISECONDS
 from core.helpers import generate_current_date_str
-from core.logging import log_task_time
-from core.users import AsyncBackendUser
+from core.users import BackendUser
 
 
-class DSSLoadUser(AsyncBackendUser):
+class DSSLoadUser(BackendUser):
 
     @task(3)
-    @log_task_time
-    async def query_db(self):
-        async with self.environment.events.request.request(
-            request_type="postgres", name="select_count"
-        ) as req:
-            val = await self.db.get_signature_count_for_day(
+    def query_db(self):
+        start_time = time.perf_counter()
+        try:
+            val = self.db.get_signature_count_for_day(
                 generate_current_date_str()
             )
-            req.response_length = len(str(val))
+            self.fire_event(
+                "postgres",
+                "select_count",
+                start_time,
+                response_length=len(str(val)),
+            )
+        except Exception as e:
+            self.fire_event("postgres", "select_count", start_time, 0, e)
+            raise
 
     @task(2)
-    @log_task_time
-    async def insert_db(self):
-        async with self.environment.events.request.request(
-            request_type="postgres", name="insert_document"
-        ) as req:
-            await self.db.insert_document()
-            req.response_length = 0
+    def insert_db(self):
+        start_time = time.perf_counter()
+        try:
+            self.db.insert_document()
+            self.fire_event(
+                "postgres",
+                "insert_document",
+                start_time,
+                response_length=0,
+            )
+        except Exception as e:
+            self.fire_event(
+                "postgres",
+                "insert_document",
+                start_time,
+                response_length=0,
+                exception=e,
+            )
+            raise
 
     @task(4)
-    @log_task_time
-    async def publish_message(self):
-        payload = {"ts": time.time(), "payload": "sync_test"}
+    def publish_message(self):
+        payload = {"ts": time.perf_counter(), "payload": "sync_test"}
+        start_time = time.perf_counter()
 
-        async with self.environment.events.request.request(
-            request_type="rabbitmq", name="publish"
-        ) as req:
-            await self.mq.publish(payload)
-            req.response_length = len(str(payload))
+        try:
+            self.mq.publish(payload)
+            self.fire_event(
+                "rabbitmq",
+                "publish",
+                start_time,
+                response_length=len(str(payload)),
+            )
+        except Exception as e:
+            self.fire_event(
+                "rabbitmq",
+                "publish",
+                start_time,
+                response_length=0,
+                exception=e,
+            )
+            raise
 
     @task(3)
-    @log_task_time
-    async def redis_ops(self):
-        key = f"test:{int(time.time() * SECONDS_TO_MILLISECONDS)}"
+    def redis_ops(self):
+        key = f"test:{int(time.perf_counter() * SECONDS_TO_MILLISECONDS)}"
+        start_time = time.perf_counter()
 
-        async with self.environment.events.request.request(
-            request_type="cache", name="set_get"
-        ) as req:
-            await self.cache.set_key(key, "value", expire=120)
-            val = await self.cache.get_key(key)
-            req.response_length = len(val or "")
+        try:
+            self.cache.set_key(key, "value", expire=120)
+            val = self.cache.get_key(key)
+
+            self.fire_event(
+                "cache",
+                "set_get",
+                start_time,
+                response_length=len(val or ""),
+            )
+        except Exception as e:
+            self.fire_event(
+                "cache",
+                "set_get",
+                start_time,
+                response_length=0,
+                exception=e,
+            )
+            raise

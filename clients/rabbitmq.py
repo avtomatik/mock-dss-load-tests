@@ -1,34 +1,56 @@
 import json
+from urllib.parse import urlparse
 
-from aio_pika import (Channel, DeliveryMode, Message, RobustConnection,
-                      connect_robust)
+from gevent import monkey
+from pika import (
+    BasicProperties,
+    BlockingConnection,
+    ConnectionParameters,
+    DeliveryMode,
+    PlainCredentials,
+)
+from pika.channel import Channel
+
+monkey.patch_all()
 
 
-class AsyncRabbitMQClient:
+class RabbitMQClient:
     def __init__(self, url: str, queue_name: str = "test_queue"):
-        self.url = url
-        self.queue_name = queue_name
-        self.connection: RobustConnection | None = None
-        self.channel: Channel | None = None
+        self.url: str = url
+        self.queue_name: str = queue_name
+        self.connection: BlockingConnection | None = None
+        self.channel: Channel = None
 
-    async def connect(self):
+        parsed = urlparse(url)
+
+        self.host = parsed.hostname
+        self.port = parsed.port
+        self.username = parsed.username
+        self.password = parsed.password
+
+    def connect(self):
         if self.connection is None:
-            self.connection = await connect_robust(self.url)
-            self.channel = await self.connection.channel()
-            await self.channel.declare_queue(
-                name=self.queue_name, durable=True
+            credentials = PlainCredentials(self.username, self.password)
+            parameters = ConnectionParameters(
+                host=self.host, port=self.port, credentials=credentials
             )
+            self.connection = BlockingConnection(parameters)
+            self.channel = self.connection.channel()
+            self.channel.queue_declare(queue=self.queue_name, durable=True)
 
-    async def close(self):
+    def close(self):
         if self.connection:
-            await self.connection.close()
+            self.connection.close()
             self.connection = None
             self.channel = None
 
-    async def publish(self, payload: dict):
-        body = json.dumps(payload).encode()
-        message = Message(body, delivery_mode=DeliveryMode.PERSISTENT)
-        await self.channel.default_exchange.publish(
-            message,
-            routing_key=self.queue_name,
-        )
+    def publish(self, payload: dict):
+        if self.channel:
+            body = json.dumps(payload).encode()
+            properties = BasicProperties(delivery_mode=DeliveryMode.Persistent)
+            self.channel.basic_publish(
+                exchange="",
+                routing_key=self.queue_name,
+                body=body,
+                properties=properties,
+            )
